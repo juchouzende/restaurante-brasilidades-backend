@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Controle — Brasilidades</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="https://img.icons8.com/?size=100&id=611&format=png&color=000000">
+
+    <style>
+        body { background-color: #f4f1ea !important; font-family: 'Segoe UI', Tahoma, sans-serif; }
+
+        .card { border-radius: 12px; border: none; }
+        .card-header { border-radius: 12px 12px 0 0 !important; }
+        .border-top-primary { border-top: 4px solid #1f4d3a !important; }
+        .border-top-info    { border-top: 4px solid #e76f51 !important; }
+
+        .table thead th { background-color: #1f4d3a; color: white; font-weight: 600; }
+        .table tbody tr:hover { background-color: #f0ebe0; }
+
+        .badge.bg-success  { background-color: #1f4d3a !important; }
+        .badge.bg-secondary { background-color: #888 !important; }
+
+        .btn-primary          { background-color: #e76f51; border-color: #e76f51; }
+        .btn-primary:hover    { background-color: #d65a3f; border-color: #d65a3f; }
+
+        .btn-outline-primary        { color: #1f4d3a; border-color: #1f4d3a; }
+        .btn-outline-primary:hover  { background-color: #1f4d3a; color: white; }
+
+        .btn-outline-warning       { color: #e76f51; border-color: #e76f51; }
+        .btn-outline-warning:hover { background-color: #e76f51; color: white; }
+
+        h2 { font-family: serif; color: #1f4d3a; font-weight: 700; }
+
+        .admin-mini-img {
+            width: 54px; height: 54px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 2px solid #e76f51;
+        }
+
+        .modal-header { background-color: #e76f51; color: white; }
+        .modal-header .btn-close { filter: invert(1); }
+
+        /* Modo edição: destaca o form */
+        .modo-edicao .card-header { background-color: #1f4d3a !important; color: white !important; }
+        .modo-edicao .card-header i, .modo-edicao .card-header span { color: #ffd166 !important; }
+
+        /* Cards de resumo */
+        .resumo-card {
+            border-radius: 10px;
+            border: none;
+            border-top: 4px solid #1f4d3a;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+        }
+
+        .resumo-card .numero { font-size: 30px; font-weight: bold; color: #1f4d3a; }
+        .resumo-card .label  { font-size: 12px; color: #888; }
+    </style>
+</head>
+<body>
+
+<div class="container mt-4 pb-5">
+
+    <!-- Cabeçalho -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h2 class="mb-0">
+            <i class="fas fa-utensils me-2" style="color:#e76f51;"></i> Painel de Controle
+        </h2>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <span class="badge fs-6 p-2 shadow-sm" style="background-color:#1f4d3a;">
+                <i class="fas fa-user-circle me-1"></i>
+                <span id="userNameDisplay">Usuário</span>
+            </span>
+            <span class="badge fs-6 p-2 shadow-sm d-none" id="userRoleDisplay" style="background-color:#e76f51;">
+                Perfil
+            </span>
+            <a href="/" class="btn btn-outline-secondary btn-sm" style="border-color:#1f4d3a;color:#1f4d3a;">
+                <i class="fas fa-external-link-alt"></i> Visualizar Site
+            </a>
+            <button class="btn btn-outline-danger btn-sm" id="btnLogout">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </button>
+        </div>
+    </div>
+
+    <!-- Cards de resumo -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card resumo-card text-center p-3">
+                <div class="numero" id="totalPratos">—</div>
+                <div class="label">Total de Pratos</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card resumo-card text-center p-3" style="border-top-color:#e76f51;">
+                <div class="numero" style="color:#1f4d3a;" id="totalDisponiveis">—</div>
+                <div class="label">Disponíveis</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card resumo-card text-center p-3" style="border-top-color:#888;">
+                <div class="numero" style="color:#888;" id="totalIndisponiveis">—</div>
+                <div class="label">Indisponíveis</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card resumo-card text-center p-3" style="border-top-color:#ffd166;">
+                <div class="numero" style="color:#e76f51;" id="totalCategorias">—</div>
+                <div class="label">Categorias</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Linha com Form + Tabela -->
+    <div class="row g-4">
+
+        <!-- FORM ADICIONAR / EDITAR -->
+        <div class="col-md-5" id="areaFormularioAdmin">
+            <div class="card shadow-sm border-top-primary h-100" id="cardForm">
+                <div class="card-header bg-white fw-bold py-3" style="font-family:serif;color:#1f4d3a;" id="headerForm">
+                    <i class="fas fa-plus-circle me-1" style="color:#e76f51;"></i>
+                    <span id="tituloForm">Adicionar Novo Prato</span>
+                </div>
+                <div class="card-body">
+                    <form id="formPrato" enctype="multipart/form-data">
+                        <input type="hidden" id="editandoId">
+
+                        <div class="row">
+                            <div class="col-md-7 mb-3">
+                                <label class="form-label small fw-semibold text-muted">Nome do Prato</label>
+                                <input type="text" class="form-control" id="inputNome" placeholder="Ex: Feijoada Completa" required>
+                            </div>
+                            <div class="col-md-5 mb-3">
+                                <label class="form-label small fw-semibold text-muted">Categoria</label>
+                                <select class="form-select" id="inputCategoria" required>
+                                    <option value="Pratos Principais">Pratos Principais</option>
+                                    <option value="Grelhados">Grelhados</option>
+                                    <option value="Pratos Regionais">Pratos Regionais</option>
+                                    <option value="Frutos do Mar">Frutos do Mar</option>
+                                    <option value="Entradas">Entradas</option>
+                                    <option value="Sobremesas">Sobremesas</option>
+                                    <option value="Bebidas">Bebidas</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-muted">Descrição</label>
+                            <textarea class="form-control" id="inputDescricao" rows="2" placeholder="Descreva o prato..." required></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-semibold text-muted">Preço (R$)</label>
+                                <input type="number" class="form-control" id="inputPreco" step="0.01" min="0" placeholder="85.00" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-semibold text-muted">Status</label>
+                                <select class="form-select" id="inputStatus">
+                                    <option value="Disponível">Disponível</option>
+                                    <option value="Indisponível">Indisponível</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold text-muted">
+                                Foto do Prato <small class="text-muted">(upload ou URL)</small>
+                            </label>
+                            <input type="file" class="form-control mb-2" id="inputImagem" accept="image/*">
+                            <input type="text" class="form-control" id="inputImagemUrl" placeholder="Ou cole uma URL de imagem aqui">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 fw-bold" id="btnSalvar">
+                            <i class="fas fa-save me-1"></i>
+                            <span id="textoBtnSalvar">Cadastrar Prato</span>
+                        </button>
+
+                        <button type="button" class="btn btn-outline-secondary w-100 mt-2 d-none" id="btnCancelar">
+                            Cancelar edição
+                        </button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABELA DE PRATOS -->
+        <div class="col-md-7" id="areaTabelaPratos">
+            <div class="card shadow-sm border-0">
+                <div class="card-header fw-semibold py-3" style="background-color:#1f4d3a;color:white;">
+                    <i class="fas fa-utensils me-1"></i> Cardápio Cadastrado
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 align-middle">
+                            <thead>
+                                <tr>
+                                    <th class="ps-3">Foto</th>
+                                    <th>Prato</th>
+                                    <th>Preço</th>
+                                    <th>Status</th>
+                                    <th class="text-end pe-3">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaPratos">
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">
+                                        <div class="spinner-border spinner-border-sm me-2" style="color:#1f4d3a;"></div>
+                                        Carregando...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal de Confirmação de Exclusão -->
+<div class="modal fade" id="modalExcluir" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold"><i class="fas fa-trash me-1"></i> Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Tem certeza que deseja remover o prato <strong id="nomePratoExcluir"></strong>? Esta ação não pode ser desfeita.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmarExclusao">
+                    <i class="fas fa-trash me-1"></i> Remover
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+    // ── ESTADO DO USUÁRIO ─────────────────────────────────────
+
+    let usuarioLogado = null;
+    let usuarioEhAdmin = false;
+
+    // ── HELPERS ──────────────────────────────────────────────
+
+    function escaparHtml(valor) {
+        return String(valor ?? '').replace(/[&<>'"]/g, (caractere) => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[caractere]));
+    }
+
+    function escaparAtributo(valor) {
+        return escaparHtml(valor).replace(/`/g, '&#96;');
+    }
+
+    async function lerJsonSeguro(resp) {
+        const texto = await resp.text();
+        try {
+            return JSON.parse(texto || '{}');
+        } catch {
+            console.error('Resposta não-JSON do servidor:', texto.substring(0, 300));
+            return { erro: 'Resposta inesperada do servidor.' };
+        }
+    }
+
+    function resolverImagem(imagem) {
+        if (!imagem || imagem === 'default.jpg') return 'https://via.placeholder.com/54x54?text=?';
+        if (imagem.startsWith('http')) return imagem;
+        return `/uploads/${imagem}`;
+    }
+
+    function precoFmt(preco) {
+        return `R$ ${parseFloat(preco).toFixed(2).replace('.', ',')}`;
+    }
+
+    // ── VERIFICAR SESSÃO ──────────────────────────────────────
+
+    async function verificarSessao() {
+        try {
+            const resp = await fetch('/api/sessao', { credentials: 'include' });
+            if (!resp.ok) { window.location.href = '/login'; return; }
+            const dados = await lerJsonSeguro(resp);
+            usuarioLogado = dados.user;
+            usuarioEhAdmin = usuarioLogado && usuarioLogado.role === 'admin';
+
+            document.getElementById('userNameDisplay').textContent = usuarioLogado.username;
+            document.getElementById('userRoleDisplay').textContent = usuarioEhAdmin ? 'Administrador' : 'Usuário comum';
+
+            aplicarPermissoesNaTela();
+        } catch {
+            window.location.href = '/login';
+        }
+    }
+
+    function aplicarPermissoesNaTela() {
+        const areaFormulario = document.getElementById('areaFormularioAdmin');
+        const areaTabela = document.getElementById('areaTabelaPratos');
+
+        if (!usuarioEhAdmin) {
+            areaFormulario.classList.add('d-none');
+            areaTabela.classList.remove('col-md-7');
+            areaTabela.classList.add('col-12');
+            mostrarAlerta('Você está no painel em modo visualização. Cadastros, edições e exclusões são exclusivos do administrador.', 'info');
+        } else {
+            areaFormulario.classList.remove('d-none');
+            areaTabela.classList.remove('col-12');
+            areaTabela.classList.add('col-md-7');
+        }
+    }
+
+    // ── LOGOUT ────────────────────────────────────────────────
+
+    document.getElementById('btnLogout').addEventListener('click', async () => {
+        await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+        window.location.href = '/';
+    });
+
+    // ── CARREGAR PRATOS ───────────────────────────────────────
+
+    async function carregarPratos() {
+        try {
+            const resp = await fetch('/api/pratos', { credentials: 'include' });
+            if (resp.status === 401) { window.location.href = '/login'; return; }
+            const pratos = await lerJsonSeguro(resp);
+            if (!resp.ok) {
+                mostrarAlerta(pratos.erro || 'Não foi possível carregar os pratos.', 'danger');
+                return;
+            }
+            renderizarTabela(pratos);
+            atualizarResumo(pratos);
+        } catch (e) {
+            console.error(e);
+            document.getElementById('tabelaPratos').innerHTML =
+                '<tr><td colspan="5" class="text-center text-danger py-3">Erro ao carregar pratos.</td></tr>';
+        }
+    }
+
+    function atualizarResumo(pratos) {
+        document.getElementById('totalPratos').textContent        = pratos.length;
+        document.getElementById('totalDisponiveis').textContent   = pratos.filter(p => p.status === 'Disponível').length;
+        document.getElementById('totalIndisponiveis').textContent = pratos.filter(p => p.status === 'Indisponível').length;
+        const cats = new Set(pratos.map(p => p.categoria));
+        document.getElementById('totalCategorias').textContent    = cats.size;
+    }
+
+    function renderizarTabela(pratos) {
+        const tbody = document.getElementById('tabelaPratos');
+        if (pratos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">Nenhum prato cadastrado.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = '';
+        pratos.forEach(p => {
+            const badgeClass = p.status === 'Disponível' ? 'bg-success' : 'bg-secondary';
+            const btnToggleLabel = p.status === 'Disponível'
+                ? '<i class="fas fa-eye-slash"></i>'
+                : '<i class="fas fa-eye"></i>';
+            const btnToggleTip = p.status === 'Disponível' ? 'Marcar Indisponível' : 'Marcar Disponível';
+
+            const acoesAdmin = usuarioEhAdmin ? `
+                <button class="btn btn-outline-primary btn-sm me-1" title="Editar" onclick="prepararEdicao(${p.id})">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-outline-warning btn-sm me-1" title="${btnToggleTip}" onclick="toggleStatus(${p.id})">
+                    ${btnToggleLabel}
+                </button>
+                <button class="btn btn-outline-danger btn-sm" title="Excluir" onclick="confirmarExclusao(${p.id}, '${encodeURIComponent(p.nome)}')">
+                    <i class="fas fa-trash"></i>
+                </button>
+            ` : '<span class="text-muted small"><i class="fas fa-eye me-1"></i>Visualização</span>';
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="ps-3">
+                    <img src="${resolverImagem(p.imagem)}" class="admin-mini-img" alt="${escaparAtributo(p.nome)}"
+                         onerror="this.src='https://via.placeholder.com/54x54?text=?'">
+                </td>
+                <td>
+                    <strong>${escaparHtml(p.nome)}</strong><br>
+                    <small class="text-muted">${escaparHtml(p.categoria)}</small>
+                </td>
+                <td>${precoFmt(p.preco)}</td>
+                <td><span class="badge ${badgeClass}">${escaparHtml(p.status)}</span></td>
+                <td class="text-end pe-3">
+                    ${acoesAdmin}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    // ── SUBMIT FORM (CADASTRAR / EDITAR) ──────────────────────
+
+    document.getElementById('formPrato').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        if (!usuarioEhAdmin) {
+            mostrarAlerta('Você não tem permissão para cadastrar ou editar pratos.', 'warning');
+            return;
+        }
+
+        const id      = document.getElementById('editandoId').value;
+        const isEdicao = !!id;
+
+        const formData = new FormData();
+        formData.append('nome',       document.getElementById('inputNome').value.trim());
+        formData.append('categoria',  document.getElementById('inputCategoria').value);
+        formData.append('descricao',  document.getElementById('inputDescricao').value.trim());
+        formData.append('preco',      document.getElementById('inputPreco').value);
+        formData.append('status',     document.getElementById('inputStatus').value);
+        formData.append('imagemUrl',  document.getElementById('inputImagemUrl').value.trim());
+
+        const arquivo = document.getElementById('inputImagem').files[0];
+        if (arquivo) formData.append('imagem', arquivo);
+
+        const url    = isEdicao ? `/api/pratos/${id}` : '/api/pratos';
+        const method = isEdicao ? 'PUT' : 'POST';
+
+        // Desabilita botão e mostra spinner
+        const btn = document.getElementById('btnSalvar');
+        const spanTexto = document.getElementById('textoBtnSalvar');
+        const labelOriginal = spanTexto ? spanTexto.textContent : (isEdicao ? 'Salvar alterações' : 'Cadastrar Prato');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> <span id="textoBtnSalvar">Salvando...</span>';
+
+        let sucesso = false;
+        try {
+            const resp = await fetch(url, { method, credentials: 'include', body: formData });
+
+            const dados = await lerJsonSeguro(resp);
+
+            if (resp.ok) {
+                sucesso = true;
+                mostrarAlerta(dados.mensagem || 'Operação realizada com sucesso!', 'success');
+                resetarForm();
+                await carregarPratos();
+            } else {
+                mostrarAlerta('Erro: ' + (dados.erro || 'Ocorreu um erro.'), 'danger');
+            }
+
+        } catch (err) {
+            // Só cai aqui se o fetch em si falhou (sem conexão, timeout de rede)
+            console.error('Erro de rede:', err);
+            mostrarAlerta('Sem conexão com o servidor. Verifique se ele está rodando.', 'danger');
+        } finally {
+            // Restaura o botão com o label correto
+            // Se houve sucesso, resetarForm() já ajustou textoBtnSalvar para 'Cadastrar Prato'
+            // Se houve erro, preservamos o label que estava antes
+            btn.disabled = false;
+            const novoLabel = sucesso ? 'Cadastrar Prato' : labelOriginal;
+            btn.innerHTML = `<i class="fas fa-save me-1"></i> <span id="textoBtnSalvar">${novoLabel}</span>`;
+        }
+    });
+
+    // ── PREPARAR EDIÇÃO ───────────────────────────────────────
+
+    async function prepararEdicao(id) {
+        if (!usuarioEhAdmin) {
+            mostrarAlerta('Você não tem permissão para editar pratos.', 'warning');
+            return;
+        }
+
+        try {
+            const resp = await fetch(`/api/pratos/${id}`, { credentials: 'include' });
+            if (!resp.ok) { mostrarAlerta('Prato não encontrado.', 'danger'); return; }
+            const p = await lerJsonSeguro(resp);
+
+            document.getElementById('editandoId').value        = p.id;
+            document.getElementById('inputNome').value         = p.nome;
+            document.getElementById('inputCategoria').value    = p.categoria;
+            document.getElementById('inputDescricao').value    = p.descricao;
+            document.getElementById('inputPreco').value        = p.preco;
+            document.getElementById('inputStatus').value       = p.status;
+            document.getElementById('inputImagemUrl').value    = p.imagem && p.imagem.startsWith('http') ? p.imagem : '';
+            document.getElementById('inputImagem').value       = '';
+
+            // Visual modo edição
+            document.getElementById('cardForm').classList.add('modo-edicao');
+            document.getElementById('tituloForm').textContent     = `Editando: ${p.nome}`;
+            document.getElementById('textoBtnSalvar').textContent = 'Salvar alterações';
+            document.getElementById('btnCancelar').classList.remove('d-none');
+
+            document.getElementById('cardForm').scrollIntoView({ behavior: 'smooth' });
+
+        } catch {
+            mostrarAlerta('Erro ao buscar dados do prato.', 'danger');
+        }
+    }
+
+    // ── CANCELAR EDIÇÃO ───────────────────────────────────────
+
+    document.getElementById('btnCancelar').addEventListener('click', resetarForm);
+
+    function resetarForm() {
+        document.getElementById('formPrato').reset();
+        document.getElementById('editandoId').value           = '';
+        document.getElementById('inputImagemUrl').value       = '';
+        document.getElementById('cardForm').classList.remove('modo-edicao');
+        document.getElementById('tituloForm').textContent     = 'Adicionar Novo Prato';
+        document.getElementById('btnSalvar').innerHTML        = '<i class="fas fa-save me-1"></i> <span id="textoBtnSalvar">Cadastrar Prato</span>';
+        document.getElementById('btnCancelar').classList.add('d-none');
+    }
+
+    // ── TOGGLE STATUS ─────────────────────────────────────────
+
+    async function toggleStatus(id) {
+        if (!usuarioEhAdmin) {
+            mostrarAlerta('Você não tem permissão para alterar status.', 'warning');
+            return;
+        }
+
+        try {
+            const resp  = await fetch(`/api/pratos/${id}/status`, { method: 'PUT', credentials: 'include' });
+            const dados = await lerJsonSeguro(resp);
+            if (resp.ok) {
+                mostrarAlerta(dados.mensagem, 'success');
+                await carregarPratos();
+            } else {
+                mostrarAlerta('Erro: ' + (dados.erro || 'Não foi possível alterar o status.'), 'danger');
+            }
+        } catch (err) {
+            console.error('toggleStatus:', err);
+            mostrarAlerta('Sem conexão com o servidor.', 'danger');
+        }
+    }
+
+    // ── EXCLUIR PRATO ─────────────────────────────────────────
+
+    let idParaExcluir = null;
+    const modalExcluir = new bootstrap.Modal(document.getElementById('modalExcluir'));
+
+    function confirmarExclusao(id, nome) {
+        if (!usuarioEhAdmin) {
+            mostrarAlerta('Você não tem permissão para excluir pratos.', 'warning');
+            return;
+        }
+
+        idParaExcluir = id;
+        document.getElementById('nomePratoExcluir').textContent = decodeURIComponent(nome);
+        modalExcluir.show();
+    }
+
+    document.getElementById('btnConfirmarExclusao').addEventListener('click', async () => {
+        if (!idParaExcluir) return;
+        modalExcluir.hide();
+
+        try {
+            const resp  = await fetch(`/api/pratos/${idParaExcluir}`, { method: 'DELETE', credentials: 'include' });
+            const dados = await lerJsonSeguro(resp);
+            if (resp.ok) {
+                mostrarAlerta(dados.mensagem, 'success');
+                await carregarPratos();
+            } else {
+                mostrarAlerta('Erro: ' + (dados.erro || 'Não foi possível remover o prato.'), 'danger');
+            }
+        } catch (err) {
+            console.error('deletar:', err);
+            mostrarAlerta('Sem conexão com o servidor.', 'danger');
+        } finally {
+            idParaExcluir = null;
+        }
+    });
+
+    // ── ALERTA FLUTUANTE ──────────────────────────────────────
+
+    function mostrarAlerta(mensagem, tipo) {
+        const existing = document.getElementById('alertaFlutuante');
+        if (existing) existing.remove();
+
+        const div = document.createElement('div');
+        div.id = 'alertaFlutuante';
+        div.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;min-width:280px;';
+        div.innerHTML = `
+            <div class="alert alert-${tipo} alert-dismissible shadow fade show" role="alert">
+                ${mensagem}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`;
+        document.body.appendChild(div);
+        setTimeout(() => div.remove(), 3500);
+    }
+
+    // ── INICIALIZAÇÃO ─────────────────────────────────────────
+
+    (async () => {
+        await verificarSessao();
+        await carregarPratos();
+    })();
+
+</script>
+</body>
+</html>

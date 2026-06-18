@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurante Brasilidades</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="https://img.icons8.com/?size=100&id=611&format=png&color=000000">
+</head>
+
+<body>
+  <main class="flex-fill">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top custom-navbar">
+      <div class="container">
+        <a class="navbar-brand fw-bold fs-3" href="#inicio">Brasilidades</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNavbar">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="menuNavbar">
+          <ul class="navbar-nav align-items-center gap-3">
+            <li class="nav-item"><a class="nav-link" href="#inicio">Início</a></li>
+            <li class="nav-item"><a class="nav-link" href="#sobre">Sobre</a></li>
+            <li class="nav-item"><a class="nav-link" href="#cardapio">Cardápio</a></li>
+            <li class="nav-item"><a class="nav-link" href="#galeria">Galeria</a></li>
+            <li class="nav-item"><a class="nav-link" href="#contato">Contato</a></li>
+            <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
+            <li class="nav-item">
+              <a href="/login" class="btn btn-outline-light ms-2">Área Restrita</a>
+            </li>
+            <li class="nav-item">
+              <a href="#contato" class="btn btn-danger ms-2 px-4 fw-bold rounded-pill">Reservar</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Banner -->
+    <div id="inicio" class="hero-banner">
+      <div class="container text-white">
+        <p class="subtitulo-hero">Culinária e Cultura Brasileira</p>
+        <h1 class="titulo-hero">Brasilidades</h1>
+        <p class="descricao-hero">Uma celebração dos sabores tropicais e da cultura vibrante do Brasil</p>
+        <div class="d-flex justify-content-center gap-3 mt-3 mb-4">
+          <a href="#cardapio" class="btn btn-hero-primary px-4 py-2 rounded-pill">Ver Cardápio</a>
+          <a href="#contato" class="btn btn-hero-outline px-4 py-2 rounded-pill">Fazer Reserva</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sobre -->
+    <section id="sobre" class="historia-section py-5">
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-lg-6 mb-5 mb-lg-0">
+            <p class="historia-subtitulo">Nossa História</p>
+            <h2 class="historia-titulo">Sabores que Contam Histórias</h2>
+            <p class="historia-texto">No <strong>Brasilidades</strong>, celebramos a riqueza gastronômica do Brasil através de receitas tradicionais reinterpretadas com técnicas contemporâneas. Cada prato é uma homenagem às tradições culinárias que atravessam gerações.</p>
+            <p class="historia-texto">Nosso chef combina ingredientes frescos e locais com a alma da culinária brasileira, criando experiências únicas que transportam você para as diferentes regiões do país.</p>
+            <div class="row mt-4 g-3">
+              <div class="col-4">
+                <div class="historia-card"><h3>5</h3><span>Estrelas de avaliações</span></div>
+              </div>
+              <div class="col-4">
+                <div class="historia-card destaque"><h3>50+</h3><span>Pratos Únicos</span></div>
+              </div>
+              <div class="col-4">
+                <div class="historia-card"><h3>100%</h3><span>Autêntico</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="historia-grid">
+              <div class="historia-img-card img-1"><img src="https://files.zinecultural.com/Repositorio/Upload/S3/mlib-uploads/full/fotojet-42-620ff3824f227.webp"></div>
+              <div class="historia-img-card img-2"><img src="https://www.melhoresdestinos.com.br/wp-content/uploads/2020/12/comidas-tipicas-capa2019-01-820x430.jpg"></div>
+              <div class="historia-img-card img-3"><img src="https://www.penaestrada.blog.br/wp-content/uploads/2021/02/comidas-tipicas-do-brasil-cozinha.jpg.webp"></div>
+              <div class="historia-img-card img-4"><img src="https://static.nationalgeographicbrasil.com/files/styles/image_3200/public/1moquecacapixaba.jpg?w=1900&h=1269"></div>
+            </div>
+          </div>
+
+    <!-- Cardápio — DINÂMICO via API -->
+    <section id="cardapio" class="cardapio-section py-5">
+      <div class="container">
+        <div class="text-center mb-5">
+          <p class="cardapio-subtitulo">Nosso Cardápio</p>
+          <h2 class="cardapio-titulo">Sabores Inesquecíveis</h2>
+          <p class="cardapio-descricao">Cada prato é preparado com ingredientes frescos e receitas tradicionais que celebram a diversidade da culinária brasileira</p>
+        </div>
+
+        <!-- Loading -->
+        <div id="cardapioLoading" class="text-center py-4">
+          <div class="spinner-border" style="color:#1f4d3a;" role="status"></div>
+          <p class="mt-2 text-muted">Carregando cardápio...</p>
+        </div>
+
+        <!-- Grid de pratos — preenchido via JS -->
+        <div class="row g-4" id="gridPratos"></div>
+
+      </div>
+    </section>
+
+    <!-- Galeria -->
+    <section id="galeria" class="galeria-section py-5">
+      <div class="container">
+        <div class="text-center mb-5">
+          <p class="galeria-subtitulo">Galeria</p>
+          <h2 class="galeria-titulo">Momentos & Sabores</h2>
+          <p class="galeria-descricao">Uma viagem visual pela experiência Brasilidades</p>
+        </div>
+        <div class="galeria-grid">
+          <div class="galeria-card grande"><img src="https://veja.abril.com.br/wp-content/uploads/2024/11/2-BAR-DO-LUIZ-FERNANDES-internet-a.jpg?quality=70&strip=info"></div>
+          <div class="galeria-card"><img src="https://www.publishnews.com.br/estaticos/uploads/2023/10/jJIb5FkBwkdlN2XpwZEO5HnerC2UIWbaBVnywFynvNEC2ZJn3KyQYsxC5cYoIcP7r4SUHQofFnFAGMnq.jpg"></div>
+          <div class="galeria-card"><img src="https://conteudo.imguol.com.br/c/entretenimento/e8/2024/09/19/bar-da-dona-tati-barra-funda-1726770948913_v2_900x506.jpg"></div>
+          <div class="galeria-card"><img src="https://vitrinedogiba.com/wp-content/uploads/2025/06/release-forro-1.jpg"></div>
+          <div class="galeria-card"><img src="https://cdn6.campograndenews.com.br/uploads/noticias/2020/03/10/xg2nsvsrcvu2.jpg"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contato / Reserva -->
+    <section id="contato" class="reserva-section py-5">
+      <div class="container">
+        <div class="text-center mb-5">
+          <p class="reserva-subtitulo">Visite-nos</p>
+          <h2 class="reserva-titulo">Faça sua Reserva</h2>
+          <p class="reserva-descricao">Estamos prontos para recebê-lo com o melhor da hospitalidade brasileira</p>
+        </div>
+        <div class="row g-4">
+          <div class="col-lg-6">
+            <div class="reserva-info p-4 shadow-sm rounded">
+              <div class="info-item d-flex mb-4">
+                <i class="fas fa-map-marker-alt me-3"></i>
+                <div><h6>Endereço</h6><p class="mb-0">Rua das Palmeiras, 456<br>Jardim Tropical - São Paulo, SP<br>CEP: 01234-567</p></div>
+              </div>
+              <div class="info-item d-flex mb-4">
+                <i class="fas fa-clock me-3"></i>
+                <div><h6>Horário de Funcionamento</h6><p class="mb-0">Segunda a Quinta: 12h - 23h<br>Sexta e Sábado: 12h - 01h<br>Domingo: 12h - 22h</p></div>
+              </div>
+              <div class="info-item d-flex mb-4">
+                <i class="fas fa-phone me-3"></i>
+                <div><h6>Telefone</h6><p class="mb-0">(11) 3456-7890<br>WhatsApp: (11) 98765-4321</p></div>
+              </div>
+              <div class="info-item d-flex">
+                <i class="fas fa-envelope me-3"></i>
+                <div><h6>Email</h6><p class="mb-0">contato@brasilidades.com.br</p></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="reserva-form p-4 shadow-sm rounded">
+              <h4 class="mb-4">Reserve sua Mesa</h4>
+              <form>
+                <div class="mb-3"><label class="form-label">Nome Completo</label><input type="text" class="form-control" placeholder="Seu nome"></div>
+                <div class="row">
+                  <div class="col-md-6 mb-3"><label class="form-label">Telefone</label><input type="tel" class="form-control" placeholder="(11) 99999-9999"></div>
+                  <div class="col-md-6 mb-3"><label class="form-label">Email</label><input type="email" class="form-control" placeholder="seu@email.com"></div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 mb-3"><label class="form-label">Data</label><input type="date" class="form-control"></div>
+                  <div class="col-md-6 mb-3"><label class="form-label">Horário</label><input type="time" class="form-control"></div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Número de Pessoas</label>
+                  <select class="form-select"><option>1 pessoa</option><option>2 pessoas</option><option>3 pessoas</option><option>4 pessoas</option><option>5+</option></select>
+                </div>
+                <div class="mb-4"><label class="form-label">Observações</label><textarea class="form-control" rows="3" placeholder="Alguma preferência especial?"></textarea></div>
+                <button class="btn btn-danger w-100 fw-bold py-2">Confirmar Reserva</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer text-center py-4">
+    <div class="container">
+      <h4 class="mb-1">Brasilidades</h4>
+      <p class="mb-2">Sabores autênticos do Brasil</p>
+      <small>© 2026 Brasilidades — Todos os direitos reservados</small>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+
+    // ── CARREGAR CARDÁPIO DA API ─────────────────────────────
+
+    function resolverImagem(imagem) {
+        if (!imagem || imagem === 'default.jpg') {
+            return 'https://via.placeholder.com/400x300?text=Sem+foto';
+        }
+        // Se começa com http → URL externa (pratos do seed)
+        if (imagem.startsWith('http')) return imagem;
+        // Senão → arquivo local de upload
+        return `/uploads/${imagem}`;
+    }
+
+    async function carregarCardapio() {
+        try {
+            const resp   = await fetch('/api/public/pratos');
+            const pratos = JSON.parse(await resp.text());
+
+            const grid    = document.getElementById('gridPratos');
+            const loading = document.getElementById('cardapioLoading');
+
+            loading.style.display = 'none';
+
+            if (pratos.length === 0) {
+                grid.innerHTML = '<p class="text-center text-muted col-12">Cardápio em atualização. Volte em breve!</p>';
+                return;
+            }
+
+            pratos.forEach(p => {
+                const precoFmt = `R$ ${parseFloat(p.preco).toFixed(2).replace('.', ',')}`;
+                const imgSrc   = resolverImagem(p.imagem);
+
+                const col = document.createElement('div');
+                col.className = 'col-md-6 col-lg-4';
+                col.innerHTML = `
+                    <div class="cardapio-card">
+                        <div class="cardapio-img">
+                            <img src="${imgSrc}" alt="${p.nome}" onerror="this.src='https://via.placeholder.com/400x300?text=Sem+foto'">
+                            <span class="tag">${p.categoria}</span>
+                        </div>
+                        <div class="cardapio-body">
+                            <h5>${p.nome}</h5>
+                            <p>${p.descricao}</p>
+                            <div class="cardapio-footer">
+                                <span class="preco">${precoFmt}</span>
+                                <button class="btn btn-pedir">Pedir</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(col);
+            });
+
+        } catch (erro) {
+            console.error(erro);
+            document.getElementById('cardapioLoading').innerHTML =
+                '<p class="text-danger">Erro ao carregar cardápio.</p>';
+        }
+    }
+
+    carregarCardapio();
+
+    // ── NAVBAR SCROLL EFEITO ─────────────────────────────────
+    window.addEventListener('scroll', () => {
+        const nav = document.querySelector('.custom-navbar');
+        nav.classList.toggle('navbar-scroll', window.scrollY > 80);
+    });
+
+  </script>
+
+</body>
+</html>

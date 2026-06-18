@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Área Restrita | Brasilidades</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="https://img.icons8.com/?size=100&id=611&format=png&color=000000">
+
+    <style>
+        body {
+            background-color: #f4f1ea !important;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .login-container { max-width: 420px; margin: 100px auto 50px; }
+
+        .card { border: none; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+
+        .card-header-brasil {
+            background-color: #1f4d3a;
+            color: white;
+            font-family: serif;
+            font-size: 20px;
+            font-weight: 700;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .card-header-brasil i { margin-right: 8px; color: #ffd166; }
+
+        .card-body { background-color: #fff; padding: 30px; }
+
+        .form-label { color: #4a4a4a; font-weight: 500; font-size: 14px; }
+
+        .form-control {
+            border-radius: 10px;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            font-size: 14px;
+        }
+
+        .form-control:focus { border-color: #d65a3f; box-shadow: 0 0 0 0.2rem rgba(230,111,81,0.25); }
+
+        .btn-login {
+            background-color: #e76f51;
+            color: white;
+            font-weight: 600;
+            border: none;
+            border-radius: 30px;
+            padding: 12px 0;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.2s;
+            width: 100%;
+        }
+
+        .btn-login:hover { background-color: #d65a3f; transform: translateY(-2px); color: white; }
+
+        .link-voltar { color: #1f4d3a; text-decoration: none; font-size: 14px; font-weight: 500; }
+        .link-voltar:hover { color: #e76f51; }
+
+        #erroLogin {
+            background-color: #fde8e4;
+            border: 1px solid #e76f5140;
+            color: #b1442e;
+            border-radius: 10px;
+            font-size: 14px;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container login-container">
+
+        <div class="text-center mb-3">
+            <a href="/" class="link-voltar"><i class="fas fa-arrow-left me-1"></i> Voltar para a página inicial</a>
+        </div>
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-header-brasil">
+                <i class="fas fa-lock"></i> Acesso Restrito
+            </div>
+
+            <div class="card-body p-4">
+
+                <form id="loginForm">
+
+                    <div class="mb-3">
+                        <label class="form-label"><i class="far fa-user me-1"></i> Usuário</label>
+                        <input type="text" class="form-control" id="username" placeholder="Digite seu usuário" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label"><i class="fas fa-key me-1"></i> Senha</label>
+                        <input type="password" class="form-control" id="password" placeholder="Digite sua senha" required>
+                    </div>
+
+                    <!-- Mensagem de erro -->
+                    <div id="erroLogin" class="d-none">
+                        <i class="fas fa-exclamation-circle me-1"></i>
+                        <span id="erroLoginMsg">Usuário ou senha inválidos.</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-login" id="btnEntrar">
+                        Entrar no Painel <i class="fas fa-arrow-right ms-1"></i>
+                    </button>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username   = document.getElementById('username').value.trim();
+            const password   = document.getElementById('password').value.trim();
+            const erroDiv    = document.getElementById('erroLogin');
+            const btnEntrar  = document.getElementById('btnEntrar');
+
+            erroDiv.classList.add('d-none');
+            btnEntrar.disabled = true;
+            btnEntrar.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Entrando...';
+
+            try {
+                const resp = await fetch('/api/login', {
+                    method:      'POST',
+                    headers:     { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body:        JSON.stringify({ username, password })
+                });
+
+                const dados = JSON.parse(await resp.text());
+
+                if (dados.success) {
+                    // Redireciona conforme o perfil: admin → /dashboard, usuario → /painel
+                    window.location.href = dados.redirectTo || '/';
+                } else {
+                    document.getElementById('erroLoginMsg').textContent = dados.message || 'Usuário ou senha inválidos.';
+                    erroDiv.classList.remove('d-none');
+                    btnEntrar.disabled = false;
+                    btnEntrar.innerHTML = 'Entrar no Painel <i class="fas fa-arrow-right ms-1"></i>';
+                }
+
+            } catch {
+                document.getElementById('erroLoginMsg').textContent = 'Erro de conexão com o servidor.';
+                erroDiv.classList.remove('d-none');
+                btnEntrar.disabled = false;
+                btnEntrar.innerHTML = 'Entrar no Painel <i class="fas fa-arrow-right ms-1"></i>';
+            }
+        });
+
+    </script>
+
+</body>
+</html>

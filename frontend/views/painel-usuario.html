@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardápio — Brasilidades</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="https://img.icons8.com/?size=100&id=611&format=png&color=000000">
+
+    <style>
+        body { background-color: #f4f1ea !important; font-family: 'Segoe UI', Tahoma, sans-serif; }
+
+        .topo {
+            background-color: #1f4d3a;
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .topo h1 { color: white; font-family: serif; font-size: 22px; margin: 0; }
+        .topo h1 span { color: #ffd166; }
+
+        .badge-role {
+            background-color: #ffd166;
+            color: #1f4d3a;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .resumo-card {
+            border-radius: 10px;
+            border: none;
+            border-top: 4px solid #1f4d3a;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+        }
+        .resumo-card .numero { font-size: 30px; font-weight: bold; color: #1f4d3a; }
+        .resumo-card .label  { font-size: 12px; color: #888; }
+
+        .prato-card {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+            overflow: hidden;
+        }
+        .prato-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+
+        .prato-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .prato-card .card-body { padding: 14px 16px; }
+        .prato-card .card-body h6 { font-weight: 700; color: #1f4d3a; font-size: 15px; margin-bottom: 4px; }
+        .prato-card .card-body .categoria { font-size: 11px; color: #e76f51; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .prato-card .card-body .descricao { font-size: 13px; color: #666; margin: 6px 0; line-height: 1.4; }
+        .prato-card .card-body .preco { font-size: 17px; font-weight: 700; color: #1f4d3a; }
+
+        .badge.bg-success  { background-color: #1f4d3a !important; }
+        .badge.bg-secondary { background-color: #999 !important; }
+
+        .filtro-btn { border-radius: 20px; font-size: 13px; }
+        .filtro-btn.active { background-color: #1f4d3a !important; color: white !important; border-color: #1f4d3a !important; }
+
+        .aviso-sem-permissao {
+            background-color: #fff8e1;
+            border: 1px solid #ffd16680;
+            border-radius: 10px;
+            padding: 14px 18px;
+            font-size: 14px;
+            color: #7a6000;
+        }
+
+        /* Busca */
+        #inputBusca:focus { border-color: #1f4d3a; box-shadow: 0 0 0 0.2rem rgba(31,77,58,0.2); }
+    </style>
+</head>
+<body>
+
+<!-- TOPO -->
+<div class="topo">
+    <h1>🍽️ Brasilidades <span>— Cardápio</span></h1>
+    <div class="d-flex align-items-center gap-2 flex-wrap">
+        <span class="badge-role"><i class="fas fa-user me-1"></i><span id="userNameDisplay">Usuário</span></span>
+        <a href="/" class="btn btn-sm btn-outline-light">
+            <i class="fas fa-external-link-alt me-1"></i> Ver Site
+        </a>
+        <button class="btn btn-sm btn-outline-danger" id="btnLogout">
+            <i class="fas fa-sign-out-alt me-1"></i> Sair
+        </button>
+    </div>
+</div>
+
+<div class="container mt-4 pb-5">
+
+    <!-- Aviso de permissão -->
+    <div class="aviso-sem-permissao mb-4">
+        <i class="fas fa-info-circle me-2"></i>
+        Você está logado como <strong>usuário</strong>. Pode visualizar o cardápio completo, incluindo pratos indisponíveis. Para gerenciar pratos, solicite acesso de administrador.
+    </div>
+
+    <!-- Cards resumo -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card resumo-card text-center p-3">
+                <div class="numero" id="totalPratos">—</div>
+                <div class="label">Total de Pratos</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card resumo-card text-center p-3" style="border-top-color:#e76f51;">
+                <div class="numero" style="color:#e76f51;" id="totalDisponiveis">—</div>
+                <div class="label">Disponíveis</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card resumo-card text-center p-3" style="border-top-color:#999;">
+                <div class="numero" style="color:#999;" id="totalIndisponiveis">—</div>
+                <div class="label">Indisponíveis</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card resumo-card text-center p-3" style="border-top-color:#ffd166;">
+                <div class="numero" style="color:#e76f51;" id="totalCategorias">—</div>
+                <div class="label">Categorias</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra de filtros e busca -->
+    <div class="d-flex flex-wrap gap-2 align-items-center mb-4">
+        <input type="text" class="form-control" id="inputBusca"
+               placeholder="🔍 Buscar prato..."
+               style="max-width:220px; border-radius:20px;">
+        <div id="filtrosCategorias" class="d-flex flex-wrap gap-2">
+            <button class="btn btn-outline-secondary filtro-btn active" data-cat="Todos">Todos</button>
+        </div>
+    </div>
+
+    <!-- Grid de pratos -->
+    <div class="row g-4" id="gridPratos">
+        <div class="col-12 text-center py-5 text-muted">
+            <div class="spinner-border me-2" style="color:#1f4d3a;"></div> Carregando cardápio...
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+
+    // ── ESTADO ────────────────────────────────────────────────
+    let todosPratos      = [];
+    let categoriaAtiva   = 'Todos';
+    let termoBusca       = '';
+
+    // ── HELPERS ──────────────────────────────────────────────
+    function resolverImagem(imagem) {
+        if (!imagem || imagem === 'default.jpg') return 'https://via.placeholder.com/400x200?text=Sem+foto';
+        if (imagem.startsWith('http')) return imagem;
+        return `/uploads/${imagem}`;
+    }
+    function precoFmt(preco) {
+        return `R$ ${parseFloat(preco).toFixed(2).replace('.', ',')}`;
+    }
+
+    // ── VERIFICAR SESSÃO ──────────────────────────────────────
+    async function verificarSessao() {
+        try {
+            const resp = await fetch('/api/sessao', { credentials: 'include' });
+            if (!resp.ok) { window.location.href = '/login'; return; }
+            const dados = JSON.parse(await resp.text());
+            // Admin não deve estar nessa página
+            if (dados.user.role === 'admin') {
+                window.location.href = '/dashboard';
+                return;
+            }
+            document.getElementById('userNameDisplay').textContent = dados.user.username;
+        } catch {
+            window.location.href = '/login';
+        }
+    }
+
+    // ── LOGOUT ────────────────────────────────────────────────
+    document.getElementById('btnLogout').addEventListener('click', async () => {
+        await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+        window.location.href = '/';
+    });
+
+    // ── CARREGAR PRATOS (rota admin — todos, incluindo indisponíveis) ──
+    async function carregarPratos() {
+        try {
+            const resp = await fetch('/api/meu-cardapio', { credentials: 'include' });
+            if (!resp.ok) { window.location.href = '/login'; return; }
+            todosPratos = JSON.parse(await resp.text());
+            atualizarResumo();
+            construirFiltros();
+            renderizarGrid();
+        } catch (e) {
+            document.getElementById('gridPratos').innerHTML =
+                '<p class="text-danger col-12 text-center">Erro ao carregar cardápio.</p>';
+        }
+    }
+
+    function atualizarResumo() {
+        document.getElementById('totalPratos').textContent        = todosPratos.length;
+        document.getElementById('totalDisponiveis').textContent   = todosPratos.filter(p => p.status === 'Disponível').length;
+        document.getElementById('totalIndisponiveis').textContent = todosPratos.filter(p => p.status === 'Indisponível').length;
+        const cats = new Set(todosPratos.map(p => p.categoria));
+        document.getElementById('totalCategorias').textContent    = cats.size;
+    }
+
+    function construirFiltros() {
+        const cats      = ['Todos', ...new Set(todosPratos.map(p => p.categoria))];
+        const container = document.getElementById('filtrosCategorias');
+        container.innerHTML = '';
+        cats.forEach(cat => {
+            const btn = document.createElement('button');
+            btn.className  = 'btn btn-outline-secondary filtro-btn' + (cat === 'Todos' ? ' active' : '');
+            btn.dataset.cat = cat;
+            btn.textContent = cat;
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                categoriaAtiva = cat;
+                renderizarGrid();
+            });
+            container.appendChild(btn);
+        });
+    }
+
+    function renderizarGrid() {
+        const grid    = document.getElementById('gridPratos');
+        const filtrado = todosPratos.filter(p => {
+            const catOk  = categoriaAtiva === 'Todos' || p.categoria === categoriaAtiva;
+            const busca  = termoBusca.toLowerCase();
+            const textoOk = !busca ||
+                p.nome.toLowerCase().includes(busca) ||
+                p.descricao.toLowerCase().includes(busca) ||
+                p.categoria.toLowerCase().includes(busca);
+            return catOk && textoOk;
+        });
+
+        if (filtrado.length === 0) {
+            grid.innerHTML = '<p class="text-muted col-12 text-center py-4">Nenhum prato encontrado.</p>';
+            return;
+        }
+
+        grid.innerHTML = '';
+        filtrado.forEach(p => {
+            const badgeClass  = p.status === 'Disponível' ? 'bg-success' : 'bg-secondary';
+            const opacidade   = p.status === 'Disponível' ? '1' : '0.6';
+
+            const col = document.createElement('div');
+            col.className = 'col-sm-6 col-md-4 col-lg-3';
+            col.innerHTML = `
+                <div class="card prato-card h-100" style="opacity:${opacidade};">
+                    <img src="${resolverImagem(p.imagem)}" alt="${p.nome}"
+                         onerror="this.src='https://via.placeholder.com/400x200?text=Sem+foto'">
+                    <div class="card-body d-flex flex-column">
+                        <div class="categoria mb-1">${p.categoria}</div>
+                        <h6>${p.nome}</h6>
+                        <p class="descricao flex-fill">${p.descricao}</p>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <span class="preco">${precoFmt(p.preco)}</span>
+                            <span class="badge ${badgeClass}">${p.status}</span>
+                        </div>
+                    </div>
+                </div>`;
+            grid.appendChild(col);
+        });
+    }
+
+    // ── BUSCA ─────────────────────────────────────────────────
+    document.getElementById('inputBusca').addEventListener('input', (e) => {
+        termoBusca = e.target.value.trim();
+        renderizarGrid();
+    });
+
+    // ── INICIALIZAÇÃO ─────────────────────────────────────────
+    verificarSessao();
+    carregarPratos();
+
+</script>
+</body>
+</html>
